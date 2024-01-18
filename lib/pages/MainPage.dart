@@ -12,6 +12,8 @@ import '../models/friendModel.dart';
 import '../models/invitationModel.dart';
 import '../models/recommendationModel.dart';
 
+
+///////
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
