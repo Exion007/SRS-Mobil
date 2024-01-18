@@ -16,16 +16,17 @@
 -   Data export part
 -   Recommendation Based on Songs, Albums, Artists, Friends and Spotify
 -   Adding friends with invitation
--   Aceepting or declining friendship invitation
+-   Accepting or declining friendship invitation
 -   Back-end connection for adding, removing songs.
 -   Adding songs from recommended songs
 -   Removing Friends
-
-## In Progress:
-
 -   Recommendation based on temporal values
 -   Connecting notifications to backend
 -   Making the account visible or not visible by other users
+
+## In Progress:
+
+-   Connecting notifications to backend
 
 ## Will Do:
 
