@@ -102,7 +102,23 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
   // Method to handle sharing of analysis
   void _shareAnalysis(Uint8List? data, String analysisType) async {
     if (data != null) {
-      final directory = Directory('/storage/emulated/0/Download');
+
+      // Setting the download directory
+      Directory directory;
+
+      // For Android
+      if (Platform.isAndroid) {
+        directory = Directory('/storage/emulated/0/Download');
+      } 
+      // For iOS
+      else if (Platform.isIOS) {
+        directory = await getApplicationDocumentsDirectory();
+      } 
+      // For other platforms
+      else {
+        directory = Directory.current;
+      }
+
       final imagePath = await File('${directory.path}/$analysisType.png').create();
       await imagePath.writeAsBytes(data);
 
@@ -121,7 +137,7 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.analytics, color: Colors.white),
-              title: const Text('Share Song Analysis', style: TextStyle(color: Colors.white)),
+              title: const Text('Share Favorites Analysis', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop();
                 _shareAnalysis(imageData, 'song');
