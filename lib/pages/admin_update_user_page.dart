@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/userModel.dart';
 import '../apis/AdminLogic.dart';
 
@@ -14,13 +15,17 @@ class UpdateUserPage extends StatefulWidget {
 class _UpdateUserPageState extends State<UpdateUserPage> {
   final _formKey = GlobalKey<FormState>();
   late String _name;
-  late String _email;
+  late String _username;
+  late String _role;
+  late DateTime _createdAt;
 
   @override
   void initState() {
     super.initState();
     _name = widget.user.name;
-    _email = widget.user.email;
+    _username = widget.user.username;
+    _role = widget.user.role;
+    _createdAt = widget.user.createdAt;
   }
 
   void _updateUser() {
@@ -30,7 +35,9 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
 
       Map<String, dynamic> updatedData = {
         'name': _name,
-        'email': _email,
+        'username': _username,
+        'role': _role,
+        'createdAt': _createdAt.toIso8601String(),
       };
 
       adminLogic.updateUser(widget.user.id, updatedData).then((_) {
@@ -48,6 +55,34 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
       backgroundColor: color,
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _createdAt,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.green,
+              onPrimary: Colors.white,
+              surface: Color(0xFF171717),
+              onSurface: Colors.white,
+            ),
+            dialogBackgroundColor: Colors.grey[800],
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _createdAt) {
+      setState(() {
+        _createdAt = picked;
+      });
+    }
   }
 
   @override
@@ -69,28 +104,59 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
             children: <Widget>[
               TextFormField(
                 initialValue: _name,
-                decoration: InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18.0)),
-                onSaved: (value) => _name = value!,
+                decoration: InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24.0)),
                 cursorColor: Colors.green,
+                onSaved: (value) => _name = value!,
                 validator: (value) => value == null || value.isEmpty ? 'Please enter a name' : null,
               ),
+              SizedBox(height: 10.0),
               TextFormField(
-                initialValue: _email,
-                decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18.0)),
+                initialValue: _username,
+                decoration: InputDecoration(labelText: 'Username', labelStyle: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24.0)),
                 cursorColor: Colors.green,
-                onSaved: (value) => _email = value!,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter an email' : null,
+                onSaved: (value) => _username = value!,
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a username' : null,
+              ),
+              SizedBox(height: 10.0),
+              TextFormField(
+                initialValue: _role,
+                decoration: InputDecoration(
+                  labelText: 'Role',
+                  labelStyle: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 24.0)
+                ),
+                cursorColor: Colors.green,
+                onSaved: (value) => _role = value!,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a role';
+                  } else if (value != 'normal' && value != 'admin') {
+                    return 'Role must be either "normal" or "admin"';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20.0),
+              Row(
+                children: [
+                  ElevatedButton(
+                    style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
+                    onPressed: () => _selectDate(context),
+                    child: const Text("Select Creation Date", style: TextStyle(color: Colors.white, fontSize: 18.0)),
+                  ),
+                  SizedBox(width: 30),
+                  Text(
+                    DateFormat('yyyy-MM-dd').format(_createdAt),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ],
               ),
               _displayOnlyField("ID", widget.user.id),
-              _displayOnlyField("Username", widget.user.username),
-              _displayOnlyField("Role", widget.user.role),
-              _displayOnlyField("Created At", widget.user.createdAt.toIso8601String()),
-              _displayOnlyField("Version", widget.user.v.toString()),
+              _displayOnlyField("Email", widget.user.email),
               _buildFriendsList(),
               ElevatedButton(
-                style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
                 onPressed: _updateUser,
-                child: Text('Update User', style: TextStyle(color: Colors.white),),
+                style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
+                child: Text('Update User', style: TextStyle(color: Colors.white, fontSize: 18.0)),
               ),
             ],
           ),
@@ -101,14 +167,12 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
 
   Widget _displayOnlyField(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
-          Text(value, style: TextStyle(color: Colors.black, fontSize: 16)),
-          SizedBox(height: 8),
+          Text(label, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18.0)),
+          Text(value, style: TextStyle(fontSize: 16.0)),
           Divider(),
         ],
       ),
@@ -117,12 +181,12 @@ class _UpdateUserPageState extends State<UpdateUserPage> {
 
   Widget _buildFriendsList() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Friends", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-          SizedBox(height: 8),
+          Text("Friends", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green, fontSize: 18.0),),
+          SizedBox(height: 10),
           widget.user.friends != null && widget.user.friends!.isNotEmpty
               ? Column(
                   children: widget.user.friends!
