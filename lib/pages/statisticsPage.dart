@@ -136,15 +136,15 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
               title: const Text('Share Favorites Analysis', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop();
-                _shareAnalysis(favoritesImage, 'song');
+                _shareAnalysis(favoritesImage, 'favorites_analysis');
               },
             ),
             ListTile(
               leading: const Icon(Icons.bar_chart, color: Colors.white),
-              title: const Text('Share Artist Rating Analysis', style: TextStyle(color: Colors.white)),
+              title: const Text('Share Chart Analysis', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop();
-                _shareAnalysis(chartsImage, 'artist rating');
+                _shareAnalysis(chartsImage, 'chart_analysis');
               },
             ),
           ],
