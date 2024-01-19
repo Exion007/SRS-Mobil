@@ -2,15 +2,18 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../pages/MainPage.dart';
+import '../pages/AdminPage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const storage = FlutterSecureStorage(); // Create an instance of secure storage
+const storage = FlutterSecureStorage();
 
 Future<void> loginRequest(
-    // ****** LOGIN REQUEST
-    BuildContext context,
-    String email,
-    String password) async {
+  
+  // ***** LOGIN REQUEST
+  BuildContext context,
+  String email,
+  String password
+  ) async {
   var url = Uri.parse('http://10.0.2.2:5001/auth/login');
   var data = {'email': email, 'password': password};
 
@@ -24,16 +27,13 @@ Future<void> loginRequest(
     );
 
     if (response.statusCode == 200) {
-      print('Request successful');
       var responseBody = json.decode(response.body);
       if (responseBody != null && responseBody['token'] != null) {
         String token = responseBody['token'];
-        await storage.write(key: 'token', value: token); // Store the token
+        await storage.write(key: 'token', value: token);
 
-        await fetchAndStoreUserData();
+        await fetchAndStoreUserData(context);
 
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const MainPage()));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful!')),
         );
@@ -43,14 +43,12 @@ Future<void> loginRequest(
         );
       }
     } else {
-      print('Request failed with status: ${response.statusCode}');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Error logging in. Please check your credentials.')),
       );
     }
   } catch (error) {
-    print('Error making the request: $error');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
           content:
@@ -60,15 +58,16 @@ Future<void> loginRequest(
 }
 
 Future<void> registerRequest(
+    
+    // ***** REGISTER REQUEST
     BuildContext context,
-    String username, // ***** REGISTER REQUEST
+    String username,
     String email,
-    String password) async {
-  var url = Uri.parse(
-      'http://10.0.2.2:5001/auth/register');
+    String password
+  ) async {
+  var url = Uri.parse('http://10.0.2.2:5001/auth/register');
   var data = {
-    'name':
-        username,
+    'name': username,
     'username': username,
     'email': email,
     'password': password,
@@ -90,7 +89,7 @@ Future<void> registerRequest(
         String token = responseBody['token'];
         await storage.write(key: 'token', value: token); // Store the token
 
-        await fetchAndStoreUserData();
+        await fetchAndStoreUserData(context);
 
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => const MainPage()));
@@ -118,7 +117,7 @@ Future<void> registerRequest(
   }
 }
 
-Future<void> fetchAndStoreUserData() async {
+Future<void> fetchAndStoreUserData(context) async {
   var url = Uri.parse('http://10.0.2.2:5001/auth/me');
   String? token = await storage.read(key: 'token');
 
@@ -126,14 +125,23 @@ Future<void> fetchAndStoreUserData() async {
     url,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token', // Assuming you use Bearer token
+      'Authorization': 'Bearer $token',
     },
   );
 
   if (response.statusCode == 200) {
     var data = json.decode(response.body)['data'];
     await storage.write(key: 'userId', value: data['_id']);
-    // Store other necessary data similarly
+    String role = data['role'];
+    if (role == 'admin') {
+      // Navigate to the AdminPage if the user is an admin
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const AdminPage()));
+    } else {
+      // Navigate to the MainPage for regular users
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const MainPage()));
+    }
   } else {
     throw Exception('Failed to fetch user data');
   }
