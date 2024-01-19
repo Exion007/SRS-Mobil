@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/artistModel.dart';
 import '../apis/statisticsLogic.dart';
 
@@ -11,8 +14,7 @@ class StatisticsPage extends StatefulWidget {
   _StatisticsPageState createState() => _StatisticsPageState();
 }
 
-class _StatisticsPageState extends State<StatisticsPage>
-    with SingleTickerProviderStateMixin {
+class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProviderStateMixin {
   final StatisticsLogic _statisticsLogic = StatisticsLogic();
   late TabController _tabController;
 
@@ -29,7 +31,7 @@ class _StatisticsPageState extends State<StatisticsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(_handleTabSelection);  // For resetting the state when the user switches between tabs, remove this line to avoid it
+    _tabController.addListener(_handleTabSelection);
   }
 
   void _handleTabSelection() {
@@ -42,7 +44,6 @@ class _StatisticsPageState extends State<StatisticsPage>
   void dispose() {
     _tabController.removeListener(_handleTabSelection);
     _tabController.dispose();
-    _resetPageState();
     super.dispose();
   }
 
@@ -62,7 +63,7 @@ class _StatisticsPageState extends State<StatisticsPage>
   void _showDatePicker(BuildContext context, bool isStart) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStart ? startDate : endDate,
+      initialDate: isStart ? startDate ?? DateTime.now() : endDate ?? DateTime.now(),
       firstDate: DateTime(1950),
       lastDate: DateTime.now(),
       builder: (BuildContext context, Widget? child) {
@@ -98,23 +99,81 @@ class _StatisticsPageState extends State<StatisticsPage>
     });
   }
 
+  // Method to handle sharing of analysis
+  void _shareAnalysis(Uint8List? data, String analysisType) async {
+    if (data != null) {
+      final directory = Directory('/storage/emulated/0/Download');
+      final imagePath = await File('${directory.path}/$analysisType.png').create();
+      await imagePath.writeAsBytes(data);
+
+      Share.shareFiles([imagePath.path], text: 'Check out my $analysisType analysis!');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('No $analysisType analysis to share.')));
+    }
+  }
+
+  void _showSharePopup(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF171717),
+      builder: (BuildContext context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.analytics, color: Colors.white),
+              title: const Text('Share Song Analysis', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.of(context).pop();
+                _shareAnalysis(imageData, 'song');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bar_chart, color: Colors.white),
+              title: const Text('Share Artist Rating Analysis', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.of(context).pop();
+                _shareAnalysis(artistRatingImage, 'artist rating');
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(0xFF171717),
+      backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: const Color(0xFF171717),
         title: TabBar(
-          labelStyle: const TextStyle(color: Colors.white),
-          indicatorColor: Colors.green,
           controller: _tabController,
+          indicatorColor: Colors.green,
           tabs: const [
-            Tab(text: 'Favorites',),
-            Tab(text: 'Charts',),
+            Tab(
+              child: DefaultTextStyle(
+                style: TextStyle(color: Colors.white),
+                child: Text("Favorites"),
+              ),
+            ),
+            Tab(
+              child: DefaultTextStyle(
+                style: TextStyle(color: Colors.white),
+                child: Text('Charts'),
+              ),
+            ),
           ],
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.share),
+            style: ButtonStyle(iconColor: MaterialStatePropertyAll(Colors.white)),
+            onPressed: () => _showSharePopup(context),
+            tooltip: 'Share Analysis',
+          ),
+        ],
       ),
       body: TabBarView(
         controller: _tabController,

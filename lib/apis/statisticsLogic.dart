@@ -111,7 +111,7 @@ class StatisticsLogic {
     final response = await http.post(
       Uri.parse('http://10.0.2.2:5001/mobile-average-rating'),
       headers: headers,
-      body: json.encode({'artists': artists}),
+      //body: json.encode({'artists': artists}),
     );
 
     if (response.statusCode == 200) {

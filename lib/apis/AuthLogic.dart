@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../pages/MainPage.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // secure storage
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const storage = FlutterSecureStorage(); // Create an instance of secure storage
 
@@ -65,10 +65,10 @@ Future<void> registerRequest(
     String email,
     String password) async {
   var url = Uri.parse(
-      'http://10.0.2.2:5001/auth/register'); // Modify the endpoint if needed
+      'http://10.0.2.2:5001/auth/register');
   var data = {
     'name':
-        username, // Using the provided username for both 'name' and 'username'
+        username,
     'username': username,
     'email': email,
     'password': password,
