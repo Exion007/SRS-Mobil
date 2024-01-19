@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../apis/AuthLogic.dart';
 import '../models/artistModel.dart';
 
-//////////////////////////
 class StatisticsLogic {
 
   Future<Uint8List> songAnalysis(String type, DateTime? start, DateTime? end) async {
@@ -108,13 +107,15 @@ class StatisticsLogic {
       'Authorization': 'Bearer $token',
     };
 
-    final response = await http.post(
+    final response = await http.get(
       Uri.parse('http://10.0.2.2:5001/mobile-average-rating'),
       headers: headers,
       //body: json.encode({'artists': artists}),
     );
 
-    if (response.statusCode == 200) {
+    print(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
       String base64String = json.decode(response.body)['base64Image'];
       print(base64String);
       return _decodeBase64Image(base64String);

@@ -22,10 +22,8 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
   List<String> selectedArtists = [];
   DateTime? startDate;
   DateTime? endDate;
-  Uint8List? imageData;
-  Uint8List? artistRatingImage;
-  Uint8List? artistSongsCountImage;
-  Uint8List? artistRatingLastMonthImage;
+  Uint8List? favoritesImage;
+  Uint8List? chartsImage;
 
   @override
   void initState() {
@@ -53,10 +51,8 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
       selectedArtists = [];
       startDate = null;
       endDate = null;
-      imageData = null;
-      artistRatingImage = null;
-      artistSongsCountImage = null;
-      artistRatingLastMonthImage = null;
+      favoritesImage = null;
+      chartsImage = null;
     });
   }
 
@@ -140,7 +136,7 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
               title: const Text('Share Favorites Analysis', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop();
-                _shareAnalysis(imageData, 'song');
+                _shareAnalysis(favoritesImage, 'song');
               },
             ),
             ListTile(
@@ -148,7 +144,7 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
               title: const Text('Share Artist Rating Analysis', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.of(context).pop();
-                _shareAnalysis(artistRatingImage, 'artist rating');
+                _shareAnalysis(chartsImage, 'artist rating');
               },
             ),
           ],
@@ -266,7 +262,7 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
                           endDate
                         );
                         setState(() {
-                          imageData = fetchedImage;
+                          favoritesImage = fetchedImage;
                         });
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
@@ -276,8 +272,8 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
                     child: const Text('Fetch Analysis', style: TextStyle(color: Colors.white),),
                   ),
                 ),
-                // Display image here
-                if (imageData != null) Image.memory(imageData!),
+
+                if (favoritesImage != null) Image.memory(favoritesImage!),
               ],
             ),
           ),
@@ -330,27 +326,35 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
                 ElevatedButton(
                   style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
                   onPressed: () async {
+                  if (selectedArtists.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Select an artist to fetch the chart!')));
+                  } else {
                     try {
                       Uint8List fetchedImage = await _statisticsLogic.fetchArtistRatingAverage(selectedArtists);
                       setState(() {
-                        artistRatingImage = fetchedImage;
+                        chartsImage = fetchedImage;
                       });
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
                     }
-                  },
+                  }
+                },
                   child: Text('Fetch Artist Rating Average', style: TextStyle(color: Colors.white),),
                 ),
                 ElevatedButton(
                   style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
                   onPressed: () async {
-                    try {
-                      Uint8List fetchedImage = await _statisticsLogic.fetchArtistsSongsCount(selectedArtists);
-                      setState(() {
-                        artistSongsCountImage = fetchedImage;
-                      });
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+                    if (selectedArtists.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Select an artist to fetch the chart!')));
+                    } else {
+                      try {
+                        Uint8List fetchedImage = await _statisticsLogic.fetchArtistsSongsCount(selectedArtists);
+                        setState(() {
+                          chartsImage = fetchedImage;
+                        });
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+                      }
                     }
                   },
                   child: Text('Fetch Artist Songs Count', style: TextStyle(color: Colors.white),),
@@ -359,19 +363,17 @@ class _StatisticsPageState extends State<StatisticsPage> with SingleTickerProvid
                   style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
                   onPressed: () async {
                     try {
-                      Uint8List fetchedImage = await _statisticsLogic.fetchArtistsAverageRatingLastMonth(selectedArtists);
-                      setState(() {
-                        artistRatingLastMonthImage = fetchedImage;
-                      });
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+                        Uint8List fetchedImage = await _statisticsLogic.fetchArtistsAverageRatingLastMonth(selectedArtists);
+                        setState(() {
+                          chartsImage = fetchedImage;
+                        });
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
                     }
                   },
                   child: Text('Fetch Artist Last Month Average Rating', style: TextStyle(color: Colors.white),),
                 ),
-                if (artistRatingImage != null) Image.memory(artistRatingImage!),
-                if (artistSongsCountImage != null) Image.memory(artistSongsCountImage!),
-                if (artistRatingLastMonthImage != null) Image.memory(artistRatingLastMonthImage!),
+                if (chartsImage != null) Image.memory(chartsImage!),
               ],
             ),
           ),
