@@ -65,7 +65,7 @@ class _ChartsPageState extends State<ChartsPage> {
                 child: ElevatedButton(
                   style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
                   onPressed: _fetchUserRegistrationChart,
-                  child: const Text('Fetch User Registrations by Month', style: TextStyle(color: Colors.white)),
+                  child: const Text('Fetch User Registrations for Last Month', style: TextStyle(color: Colors.white)),
                 ),
               ),
               const SizedBox(height: 20.0),
@@ -73,7 +73,7 @@ class _ChartsPageState extends State<ChartsPage> {
                 child: ElevatedButton(
                   style: const ButtonStyle(backgroundColor: MaterialStatePropertyAll<Color>(Colors.green)),
                   onPressed: _fetchAddedSongChart,
-                  child: const Text('Fetch Added Songs by Month', style: TextStyle(color: Colors.white)),
+                  child: const Text('Fetch Added Songs for Last Month', style: TextStyle(color: Colors.white)),
                 ),
               ),
               const SizedBox(height: 50),
