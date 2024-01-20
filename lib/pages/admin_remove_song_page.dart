@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../apis/AdminLogic.dart';
-import '../pages/admin_update_music_page.dart';
+import '../pages/admin_update_song_page.dart';
+
+enum RemoveType { song, album, artist }
 
 class AdminRemoveSongPage extends StatelessWidget {
   const AdminRemoveSongPage({super.key});
@@ -19,15 +21,9 @@ class AdminRemoveSongPage extends StatelessWidget {
             labelColor: Colors.white,
             indicatorColor: Colors.green,
             tabs: [
-              Tab(
-                text: 'Songs',
-              ),
-              Tab(
-                text: 'Albums',
-              ),
-              Tab(
-                text: 'Artists',
-              ),
+              Tab(text: 'Songs'),
+              Tab(text: 'Albums'),
+              Tab(text: 'Artists'),
             ],
           ),
         ),
@@ -84,6 +80,40 @@ class _RemoveSongListState extends State<RemoveSongList> {
     }
   }
 
+  void _confirmRemoveItem(dynamic item) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[800],
+          title: const Text('Confirm Delete'),
+          titleTextStyle: const TextStyle(fontSize: 25, color: Colors.red),
+          content: Text('Are you sure you want to delete this item?'),
+          contentTextStyle: const TextStyle(fontSize: 20, color: Colors.white),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30.0)),
+            side: BorderSide(color: Colors.red, width: 2.5),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancel", style: TextStyle(color: Colors.blue, fontSize: 20.0)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Delete", style: TextStyle(color: Colors.red, fontSize: 20.0)),
+              onPressed: () async {
+                await _removeItem(item);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _removeItem(dynamic item) async {
     try {
       bool itemRemoved = false;
@@ -103,14 +133,24 @@ class _RemoveSongListState extends State<RemoveSongList> {
       }
 
       if (itemRemoved) {
-      _searchController.clear();
-    }
-
+        _searchController.clear();
+        _refreshList();
+      }
     } catch (e) {
       print('Error removing item: $e');
-      // Handle error as needed
     }
   }
+
+  void _refreshList() {
+    setState(() {
+      _futureItems = _fetchItems();
+    });
+  }
+
+  void refreshAndClearSearch() {
+  _searchController.clear();
+  _refreshList();
+}
 
   List<Widget> _buildListWithSeparators(List<dynamic> items) {
     List<Widget> listItems = [];
@@ -120,61 +160,46 @@ class _RemoveSongListState extends State<RemoveSongList> {
           ? item.songName
           : widget.type == RemoveType.album
               ? item.name
-              : widget.type == RemoveType.artist
-                  ? item.artistName
-                  : '';
+              : item.artistName;
+
+      List<Widget> trailingActions = [];
+
+      // Add update button only for songs
+      if (widget.type == RemoveType.song) {
+        trailingActions.add(
+          IconButton(
+            icon: const Icon(Icons.arrow_upward, color: Colors.blue),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => UpdateSongPage(
+                  song: item,
+                  onSongUpdated: refreshAndClearSearch,
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+
+      trailingActions.add(
+        IconButton(
+          icon: const Icon(Icons.close, color: Colors.red),
+          onPressed: () => _confirmRemoveItem(item),
+        ),
+      );
 
       listItems.add(
         ListTile(
-          title: Text(
-            itemName,
-            style: const TextStyle(color: Colors.white,),
+          title: Text(itemName, style: const TextStyle(color: Colors.white)),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: trailingActions,
           ),
-          onTap: () async {
-            bool removeConfirmed = await showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  backgroundColor: Colors.grey[800],
-                  title: const Text('Confirmation'),
-                  titleTextStyle: const TextStyle(fontSize: 25, color: Colors.red),
-                  content: Text('Are you sure you want to remove $itemName?'),
-                  contentTextStyle: const TextStyle(fontSize: 20, color: Colors.white),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                    side: BorderSide(color: Colors.red, width: 2.5),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false); // Cancel removal
-                      },
-                      child: const Text('Cancel', style: TextStyle(color: Colors.blue, fontSize: 20.0),),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        _removeItem(item);
-                        Navigator.of(context).pop(true); // Confirm removal
-                      },
-                      child: const Text('Remove', style: TextStyle(color: Colors.red, fontSize: 20.0),),
-                    ),
-                  ],
-                );
-              },
-            );
-
-            if (removeConfirmed == true) {
-              await _removeItem(item);
-              setState(() {
-                _futureItems = _fetchItems();
-              });
-            }
-          },
         ),
       );
 
       if (i < items.length - 1) {
-        listItems.add(const Divider(color: Colors.green,));
+        listItems.add(const Divider(color: Colors.green));
       }
     }
     return listItems;
@@ -192,11 +217,17 @@ class _RemoveSongListState extends State<RemoveSongList> {
             onChanged: (value) {
               setState(() {
                 _futureItems = _fetchItems().then((items) {
-                  return items.where((item) =>
-                      (widget.type == RemoveType.song && item.songName.toLowerCase().contains(value.toLowerCase())) ||
-                      (widget.type == RemoveType.album && item.name.toLowerCase().contains(value.toLowerCase())) ||
-                      (widget.type == RemoveType.artist && item.artistName.toLowerCase().contains(value.toLowerCase())))
-                      .toList();
+                  return items.where((item) {
+                    final searchLower = value.toLowerCase();
+                    if (widget.type == RemoveType.song) {
+                      return item.songName.toLowerCase().contains(searchLower);
+                    } else if (widget.type == RemoveType.album) {
+                      return item.name.toLowerCase().contains(searchLower);
+                    } else if (widget.type == RemoveType.artist) {
+                      return item.artistName.toLowerCase().contains(searchLower);
+                    }
+                    return false;
+                  }).toList();
                 });
               });
             },
@@ -221,7 +252,7 @@ class _RemoveSongListState extends State<RemoveSongList> {
                   ),
                 );
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No items found.', style: TextStyle(color: Colors.white, fontSize: 22.0),));
+                return const Center(child: Text('No items found.', style: TextStyle(color: Colors.white, fontSize: 22.0)));
               } else {
                 List<dynamic> items = snapshot.data!;
                 return ListView(
@@ -234,10 +265,4 @@ class _RemoveSongListState extends State<RemoveSongList> {
       ],
     );
   }
-}
-
-enum RemoveType {
-  song,
-  album,
-  artist,
 }

@@ -549,4 +549,25 @@ class AdminLogic {
       }
     }
   }
+
+  Future<void> updateSong(String songId, Map<String, dynamic> songData) async {
+    String? token = await storage.read(key: 'token');
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.put(
+      Uri.parse('http://10.0.2.2:5001/songs/$songId'),
+      body: json.encode(songData),
+      headers: headers
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("Song updated successfully!");
+    } else {
+      throw Exception('Failed to update song');
+    }
+  }
 }
