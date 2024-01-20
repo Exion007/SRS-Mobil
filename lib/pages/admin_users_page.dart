@@ -47,6 +47,7 @@ class _UsersPageState extends State<UsersPage> {
               onPressed: () {
                 _adminLogic.deleteUser(userId).then((_) {
                   Navigator.of(context).pop();
+                  _showSnackBar("User deleted successfully", Colors.red);
                   _refreshUserList();
                 }).catchError((error) {
                 });

@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
-import 'AuthLogic.dart';
+import 'dart:typed_data';
+import '../apis/AuthLogic.dart';
 import '../models/userModel.dart';
 import 'package:http/http.dart' as http;
 
 class AdminLogic {
-
-  final String baseUrl = 'http://10.0.2.2:5001/users';
 
   Future<List<User>> fetchUsers() async {
     String? token = await storage.read(key: 'token');
@@ -44,7 +43,7 @@ class AdminLogic {
     };
 
     var response = await http.post(
-      Uri.parse(baseUrl),
+      Uri.parse('http://10.0.2.2:5001/users'),
       headers: headers,
       body: json.encode(userData),
     );
@@ -68,7 +67,7 @@ class AdminLogic {
     };
 
     var response = await http.delete(
-      Uri.parse('$baseUrl/$userId'),
+      Uri.parse('http://10.0.2.2:5001/users/$userId'),
       headers: headers
       );
 
@@ -89,7 +88,7 @@ class AdminLogic {
     };
 
     var response = await http.put(
-      Uri.parse('$baseUrl/$userId'),
+      Uri.parse('http://10.0.2.2:5001/users/$userId'),
       body: json.encode(userData),
       headers: headers
     );
@@ -100,5 +99,56 @@ class AdminLogic {
     } else {
       throw Exception('Failed to update user');
     }
+  }
+
+  Future<Uint8List> fetchUserRegistrationChart() async {
+    String? token = await storage.read(key: 'token');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:5001/mobile-admin-chart-user'),
+      headers: headers,
+    );
+
+    print(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      String base64String = json.decode(response.body)['base64Image'];
+      print(base64String);
+      return _decodeBase64Image(base64String);
+    } else {
+      throw Exception('Failed to fetch user registration in a month');
+    }
+  }
+
+  Future<Uint8List> fetchAddedSongChart() async {
+    String? token = await storage.read(key: 'token');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:5001/mobile-admin-chart-songs'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      String base64String = json.decode(response.body)['base64Image'];
+      print(base64String);
+      return _decodeBase64Image(base64String);
+    } else {
+      throw Exception('Failed to fetch artist songs count');
+    }
+  }
+
+  Uint8List _decodeBase64Image(String base64String) {
+    // Remove the prefix from the base64 string if it exists
+    final RegExp regex = RegExp(r'data:image\/[a-zA-Z]+;base64,');
+    String formattedBase64String = base64String.replaceFirst(regex, '');
+    return base64Decode(formattedBase64String);
   }
 }
