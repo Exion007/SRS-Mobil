@@ -14,9 +14,9 @@ class _AdminPageState extends State<AdminPage> {
   int _selectedIndex = 1;
 
   final List<Widget> _pageOptions = [
-    const UsersPage(),
-    const ChartsPage(),
-    const MusicPage(),
+    UsersPage(),
+    ChartsPage(),
+    MusicPage(),
   ];
 
   void _onBottomNavItemTapped(int index) {

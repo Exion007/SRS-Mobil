@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../apis/MySongs_Logic.dart';
+import '../apis/AdminLogic.dart';
+import '../pages/admin_update_music_page.dart';
 
-class RemoveSongPage extends StatelessWidget {
-  const RemoveSongPage({super.key});
+class AdminRemoveSongPage extends StatelessWidget {
+  const AdminRemoveSongPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -65,15 +66,15 @@ class _RemoveSongListState extends State<RemoveSongList> {
     try {
       switch (widget.type) {
         case RemoveType.song:
-          var songs = await SongService().fetchSongs();
+          var songs = await AdminLogic().fetchSongs();
           songs.sort((a, b) => a.songName.compareTo(b.songName));
           return songs;
         case RemoveType.album:
-          var albums = await SongService().fetchAlbums();
+          var albums = await AdminLogic().fetchAlbums();
           albums.sort((a, b) => a.name.compareTo(b.name));
           return albums;
         case RemoveType.artist:
-          var artists = await SongService().fetchArtists();
+          var artists = await AdminLogic().fetchArtists();
           artists.sort((a, b) => a.artistName.compareTo(b.artistName));
           return artists;
       }
@@ -88,15 +89,15 @@ class _RemoveSongListState extends State<RemoveSongList> {
       bool itemRemoved = false;
       switch (widget.type) {
         case RemoveType.song:
-          await SongService().removeSong(item.id);
+          await AdminLogic().removeSong(item.id);
           itemRemoved = true;
           break;
         case RemoveType.album:
-          await SongService().removeAlbum(item.id);
+          await AdminLogic().removeAlbum(item.id);
           itemRemoved = true;
           break;
         case RemoveType.artist:
-          await SongService().removeArtist(item.id);
+          await AdminLogic().removeArtist(item.id);
           itemRemoved = true;
           break;
       }

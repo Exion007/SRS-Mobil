@@ -14,11 +14,24 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState extends State<UsersPage> {
   final AdminLogic _adminLogic = AdminLogic();
   late Future<List<User>> _usersFuture;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _usersFuture = _adminLogic.fetchUsers();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _usersFuture = _adminLogic.fetchUsers();
+      } else {
+        _usersFuture = _adminLogic.fetchUsers().then((users) {
+          return users.where((user) => user.username.toLowerCase().contains(query.toLowerCase())).toList();
+        });
+      }
+    });
   }
 
   void _confirmDeleteUser(String userId) {
@@ -60,6 +73,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   void _refreshUserList() {
+    _searchController.clear();
     setState(() {
       _usersFuture = _adminLogic.fetchUsers();
     });
@@ -91,50 +105,71 @@ class _UsersPageState extends State<UsersPage> {
         child: Icon(Icons.add, color: Colors.black),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: FutureBuilder<List<User>>(
-        future: _usersFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white),));
-          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            List<User> users = snapshot.data!;
-            users.sort((a, b) => a.username.compareTo(b.username));
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Search...',
+                hintStyle: TextStyle(color: Colors.white70),
+                prefixIcon: Icon(Icons.search, color: Colors.white),
+              ),
+              onChanged: _onSearchChanged,
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<User>>(
+              future: _usersFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white),));
+                } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  List<User> users = snapshot.data!;
+                  users.sort((a, b) => a.username.compareTo(b.username));
 
-            return ListView.separated(
-              itemCount: users.length,
-              separatorBuilder: (context, index) => const Divider(color: Colors.grey),
-              itemBuilder: (context, index) {
-                var user = users[index];
-                return ListTile(
-                  title: Text(user.username, style: const TextStyle(color: Colors.white)),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_upward, color: Colors.blue),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => UpdateUserPage(user: users[index])),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Colors.red),
-                        onPressed: () {
-                          _confirmDeleteUser(users[index].id);
-                        },
-                      ),
-                    ],
-                  ),
-                );
+                  return ListView.separated(
+                    itemCount: users.length,
+                    separatorBuilder: (context, index) => const Divider(color: Colors.green),
+                    itemBuilder: (context, index) {
+                      var user = users[index];
+                      return ListTile(
+                        title: Text(user.username, style: const TextStyle(color: Colors.white)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.arrow_upward, color: Colors.blue),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) => UpdateUserPage(user: users[index])),
+                                ).then((_) {
+                                  _refreshUserList();
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.close, color: Colors.red),
+                              onPressed: () {
+                                _confirmDeleteUser(users[index].id);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(child: Text('No users found'));
+                }
               },
-            );
-          } else {
-            return const Center(child: Text('No users found'));
-          }
-        },
+            ),
+          ),
+        ],
       ),
     );
   }

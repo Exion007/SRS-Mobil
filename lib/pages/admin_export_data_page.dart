@@ -3,18 +3,18 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:srs_mobile/apis/MySongs_Logic.dart';
+import 'package:srs_mobile/apis/AdminLogic.dart';
 
 enum ExportType { CSV, JSON, TXT }
 
-class ExportDataPage extends StatefulWidget {
-  const ExportDataPage({super.key});
+class AdminExportDataPage extends StatefulWidget {
+  const AdminExportDataPage({super.key});
 
   @override
-  _ExportDataPageState createState() => _ExportDataPageState();
+  _AdminExportDataPageState createState() => _AdminExportDataPageState();
 }
 
-class _ExportDataPageState extends State<ExportDataPage> {
+class _AdminExportDataPageState extends State<AdminExportDataPage> {
   late TextEditingController _artistController;
   late TextEditingController _ratingController;
   ExportType _selectedExportType = ExportType.JSON; // Default export type
@@ -54,7 +54,7 @@ class _ExportDataPageState extends State<ExportDataPage> {
         }
       }
 
-      List<dynamic> exportData = await SongService().fetchExportData(artist, rating);
+      List<dynamic> exportData = await AdminLogic().fetchExportData(artist, rating);
 
       String fileName;
 
