@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/songModel.dart'; // Update this import according to your model structure
-import '../models/albumModel.dart'; // You need to create this
-import '../models/artistModel.dart'; // You need to create this
-import '../apis/MySongs_Logic.dart'; // Update this import according to your service structure
+import '../models/songModel.dart';
+import '../models/albumModel.dart';
+import '../models/artistModel.dart';
+import '../apis/MySongs_Logic.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../apis/RatingLogic.dart';
 import '../apis/AuthLogic.dart';
+import '../pages/seeAllPage.dart';
 
 // Enum for different data types
 enum DataType { songs, albums, artists }
@@ -95,10 +96,6 @@ class _MainPageContentState extends State<MainPageContent> {
   }
 }
 
-/*
-  
- */
-
 class _SectionHeader extends StatelessWidget {
   final String title;
   final String route;
@@ -121,7 +118,13 @@ class _SectionHeader extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, route),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SeeAllPage(title: title)),
+              );
+            },
             child: const Text(
               'See All',
               style: TextStyle(color: Colors.green, fontSize: 16.0),

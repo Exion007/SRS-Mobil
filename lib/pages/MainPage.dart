@@ -242,6 +242,7 @@ class _MainPageState extends State<MainPage> {
             context: context,
             builder: (BuildContext dialogContext) {
               return AlertDialog(
+                backgroundColor: Colors.grey[800],
                 title: const Text('Confirm', style: TextStyle(color: Colors.blue, fontSize: 25.0),),
                 titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25),
                 content: Text('Do you want to add this song?'),
