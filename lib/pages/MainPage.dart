@@ -7,6 +7,7 @@ import '../pages/recommendations.dart';
 import '../pages/friends_page.dart';
 import '../pages/add_remove_page.dart';
 import '../pages/statisticsPage.dart';
+import '../pages/home_page.dart';
 import '../pages/main_page_content.dart';
 import '../apis/MyFriends_Logic.dart';
 import '../apis/recommendationsLogic.dart';
@@ -306,14 +307,32 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF171717),
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         backgroundColor: const Color(0xFF171717),
-        elevation: 0.0,
+        leading: IconButton(
+          icon: Icon(Icons.power_settings_new_rounded, color: Colors.white),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Logout successful'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const HomePage()),
+                (Route<dynamic> route) => false,
+              );
+            });
+          },
+        ),
         title: Image.asset(
           'assets/logo_white.png',
           height: 55,
           width: 55,
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),

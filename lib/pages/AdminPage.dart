@@ -8,6 +8,7 @@ import '../models/invitationModel.dart';
 import '../models/recommendationModel.dart';
 import '../apis/MyFriends_Logic.dart';
 import '../apis/recommendationsLogic.dart';
+import '../pages/home_page.dart';
 import '../pages/admin_music_page.dart';
 import '../pages/admin_users_page.dart';
 import '../pages/admin_charts_page.dart';
@@ -294,8 +295,22 @@ class _AdminPageState extends State<AdminPage> {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.power_settings_new_rounded, color: Colors.white),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Logout successful'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const HomePage()),
+                (Route<dynamic> route) => false,
+              );
+            });
+          },
         ),
         backgroundColor: const Color(0xFF171717),
         elevation: 0.0,
