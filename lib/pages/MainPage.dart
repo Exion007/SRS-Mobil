@@ -1,6 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:srs_mobile/apis/MySongs_Logic.dart';
 import '../pages/recommendations.dart';
 import '../pages/friends_page.dart';
 import '../pages/add_remove_page.dart';
@@ -20,6 +23,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  List<RecommendationModel> _recommendations = [];
   int _selectedIndex = 2;
 
   Widget _placeholderWidget() {
@@ -57,7 +61,7 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.grey[800],
+          backgroundColor: const Color(0xFF171717),
           title: const Text(
             'Should friends see music recommendations?',
             style: TextStyle(color: Colors.green),
@@ -103,129 +107,192 @@ class _MainPageState extends State<MainPage> {
       },
     );
   }
-
+  
   void _showNotifications(BuildContext context) async {
-    List<Invitation>? invitations = await MyFriendsLogic().fetchUserInvitations();
-    List<RecommendationModel> recommendations = await fetchRecommendations(RecommendationType.song);
+    List<Invitation> invitations = [];
+
+    try {
+      invitations = await MyFriendsLogic().fetchUserInvitations() ?? [];
+    } catch (e) {
+      print('Error fetching invitations: $e');
+    }
+
+    if (_recommendations.isEmpty) {
+      try {
+        //_recommendations = await fetchRecommendations(RecommendationType.song) ?? [];  // Uncomment to activate recommendations
+      } catch (e) {
+        print('Error fetching recommendations: $e');
+      }
+    }
 
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
           color: Colors.grey[800],
-          child: (invitations == null || invitations.isEmpty) && recommendations.isEmpty
-            ? Center(
-                child: Text(
-                  'No notifications',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0),
-                ),
-              )
-            : ListView.separated(
-                itemCount: (invitations?.length ?? 0) + recommendations.length,
-                separatorBuilder: (BuildContext context, int index) {
-                  return const Divider(
-                    color: Colors.white,
-                    thickness: 1.0,
-                  );
-                },
-                itemBuilder: (BuildContext context, int index) {
-                  if (index < (invitations?.length ?? 0)) {
-                    Invitation invitation = invitations![index];
-                    return Dismissible(
-                      key: Key(invitation.id),
-                      background: Container(
-                        color: Colors.red,
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        alignment: Alignment.centerLeft,
-                        child: Icon(Icons.delete, color: Colors.white),
-                      ),
-                      onDismissed: (direction) async {
-                        await MyFriendsLogic().updateInvitationStatus(invitation.id, 'deleted');
-                        Navigator.pop(context);
-                      },
-                      child: ListTile(
-                        title: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Friend Request from ${invitation.userId}',
-                                style: const TextStyle(color: Colors.white, fontSize: 18.0),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.check, color: Colors.green),
-                              onPressed: () async {
-                                await MyFriendsLogic().updateInvitationStatus(invitation.id, 'accepted');
-                                Navigator.pop(context);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.close, color: Colors.red),
-                              onPressed: () async {
-                                await MyFriendsLogic().updateInvitationStatus(invitation.id, 'rejected');
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  } else {
-                    RecommendationModel recommendation = recommendations[index - (invitations?.length ?? 0)];
-                    return Dismissible(
-                      key: Key(recommendation.songName),
-                      background: Container(
-                        color: Colors.red,
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        alignment: Alignment.centerLeft,
-                        child: Icon(Icons.delete, color: Colors.white),
-                      ),
-                      onDismissed: (direction) async {
-                        setState(() {
-                          recommendations.removeAt(index - (invitations?.length ?? 0));
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                        leading: Image.network(
-                          recommendation.albumImg,
-                          width: 50.0,
-                          height: 50.0,
-                          fit: BoxFit.cover,
-                        ),
-                        title: RichText(
-                          text: TextSpan(
-                            style: DefaultTextStyle.of(context).style,
-                            children: [
-                              TextSpan(
-                                text: recommendation.songName,
-                                style: TextStyle(color: Colors.green, fontSize: 18.0),
-                              ),
-                              const TextSpan(text: '\n', style: TextStyle(color: Colors.white, fontSize: 18.0)),
-                              TextSpan(text: recommendation.mainArtistName, style: const TextStyle(color: Colors.white, fontSize: 18.0)),
-                            ],
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () async {
-                            setState(() {
-                              recommendations.removeAt(index - (invitations?.length ?? 0));
-                            });
-                            Navigator.pop(context);
-                          },
-                        ),
-                        onTap: () {
-                          // Do something when the song recommendation is tapped
-                        },
-                      ),
-                    );
-                  }
-                },
-              ),
+          child: ListView.separated(
+            itemCount: max(invitations.length + _recommendations.length, 1),
+            separatorBuilder: (_, __) => Divider(color: Colors.white),
+            itemBuilder: (BuildContext context, int index) {
+              if (index < invitations.length) {
+                return buildInvitationTile(invitations[index], context);
+              } else {
+                int recommendationIndex = index - invitations.length;
+                if (recommendationIndex < _recommendations.length) {
+                  return buildRecommendationTile(_recommendations[recommendationIndex], context);
+                }
+                return SizedBox.shrink();
+              }
+            },
+          ),
         );
       },
+    );
+  }
+
+  Widget _noDataMessage(String message) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        message,
+        style: TextStyle(color: Colors.white, fontSize: 18.0),
+      ),
+    );
+  }
+
+  Widget buildInvitationTile(Invitation invitation, BuildContext context) {
+    return Dismissible(
+      key: Key(invitation.id),
+      background: Container(
+        color: Colors.red,
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        alignment: Alignment.centerLeft,
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      onDismissed: (direction) async {
+        await MyFriendsLogic().updateInvitationStatus(invitation.id, 'deleted');
+        Navigator.pop(context);
+      },
+      child: ListTile(
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Friend Request from ${invitation.userId}',
+                style: const TextStyle(color: Colors.white, fontSize: 18.0),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.check, color: Colors.green),
+              onPressed: () async {
+                await MyFriendsLogic().updateInvitationStatus(invitation.id, 'accepted');
+                Navigator.pop(context);
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, color: Colors.red),
+              onPressed: () async {
+                await MyFriendsLogic().updateInvitationStatus(invitation.id, 'rejected');
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildRecommendationTile(RecommendationModel recommendation, BuildContext context) {
+    return Dismissible(
+      key: Key(recommendation.songName),
+      background: Container(
+        color: Colors.red,
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        alignment: Alignment.centerLeft,
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      onDismissed: (direction) {
+        setState(() {
+          _recommendations.removeWhere((r) => r.songName == recommendation.songName);
+        });
+      },
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+        leading: Image.network(
+          recommendation.albumImg,
+          width: 50.0,
+          height: 50.0,
+          fit: BoxFit.cover,
+        ),
+        title: RichText(
+          text: TextSpan(
+            style: DefaultTextStyle.of(context).style,
+            children: [
+              TextSpan(
+                text: recommendation.songName,
+                style: TextStyle(color: Colors.green, fontSize: 18.0),
+              ),
+              const TextSpan(text: '\n', style: TextStyle(color: Colors.white, fontSize: 18.0)),
+              TextSpan(text: recommendation.mainArtistName, style: const TextStyle(color: Colors.white, fontSize: 18.0)),
+            ],
+          ),
+        ),
+        onTap: () async {
+          bool confirmed = await showDialog(
+            context: context,
+            builder: (BuildContext dialogContext) {
+              return AlertDialog(
+                title: Text('Confirm'),
+                content: Text('Do you want to add this song?'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop(false);
+                    },
+                  ),
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop(true);
+                    },
+                  ),
+                ],
+              );
+            },
+          ) ?? false;
+
+          if (confirmed) {
+            try {
+              bool result = await SongService().addSongInfo(
+                recommendation.songName,
+                recommendation.mainArtistName,
+                [],
+                recommendation.albumName,
+              );
+
+              if (result) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Song info added successfully'), backgroundColor: Colors.green),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to add song info'), backgroundColor: Colors.red),
+                );
+              }
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('An error occurred: $e'), backgroundColor: Colors.red),
+              );
+            }
+
+            setState(() {
+              Navigator.pop(context);
+              _recommendations.removeWhere((r) => r.songName == recommendation.songName);
+            });
+          }
+        },
+      ),
     );
   }
 

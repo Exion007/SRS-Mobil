@@ -13,16 +13,17 @@
 -   Made favorite artists statistics part.
 -   Made favorite albums statistics part.
 -   Made artists with most songs chart
--   Data export part
--   Recommendation Based on Songs, Albums, Artists, Friends and Spotify
--   Adding friends with invitation
--   Accepting or declining friendship invitation
+-   Data export part is done.
+-   Recommendation Based on Songs, Albums, Artists, Friends and Spotify.
+-   Adding friends with invitation.
+-   Accepting or declining friendship invitation.
 -   Back-end connection for adding, removing songs.
--   Adding songs from recommended songs
--   Removing Friends
--   Recommendation based on temporal values
--   Connecting notifications to backend
--   Making the account visible or not visible by other users
+-   Adding songs from recommended songs.
+-   Removing Friends.
+-   Recommendation based on temporal values.
+-   Connecting notifications to backend.
+-   Making the account visible or not visible by other users.
+-   Admin interface for managing (add-delete-update) users and songs.
 
 ## In Progress:
 
@@ -34,7 +35,6 @@
 -   Sign in with Google or Apple account.
 -   Register with Google or Apple account.
 -   User details UI
--   Updating Songs
 
 ## Guide:
 

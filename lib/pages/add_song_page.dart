@@ -769,23 +769,24 @@ class _AddSongSpotifyFormState extends State<AddSongSpotifyForm> {
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.grey[800], // Dark background for the dialog
-          titleTextStyle: const TextStyle(
-              color: Colors.white, fontSize: 20), // White title text
-          contentTextStyle: const TextStyle(
-              color: Colors.white70), // Lighter text for the content
-          title: const Text('Add Song to Database'),
-          content: Text(
-              'Do you want to add "${song.songName}" by ${song.mainArtistName} to the database?'),
+          backgroundColor: Colors.grey[800],
+          title: const Text('Add Song to Database', style: TextStyle(color: Colors.blue, fontSize: 25.0),),
+          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25),
+          contentTextStyle: const TextStyle(fontSize: 20, color: Colors.white),
+          content: Text('Do you want to add "${song.songName}" by ${song.mainArtistName} to the database?'),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(30.0)),
+            side: BorderSide(color: Colors.white, width: 2.5),
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(color: Colors.blue, fontSize: 20.0),),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
-              child: const Text('Add'),
+              child: const Text('Add', style: TextStyle(color: Colors.green, fontSize: 20.0),),
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 bool success = await songService.saveSpotifySongToDb(song);
