@@ -25,14 +25,15 @@
 -   Making the account visible or not visible by other users.
 -   Admin interface for managing (add-delete-update) users and songs.
 -   Log out functionality.
+-   Forgot password extension.
 
 ## In Progress:
 
--   Forgot password extension.
+-   None
 
 ## Will Do:
 
--   
+-   None
 
 ## Guide:
 

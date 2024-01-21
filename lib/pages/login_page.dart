@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                   TextField(
                     controller: verificationController,
                     decoration: InputDecoration(
-                      hintText: "verify your mail",
+                      hintText: "Verify your mail",
                       hintStyle: TextStyle(color: Colors.grey[500]),
                       filled: true,
                       fillColor: Colors.white,

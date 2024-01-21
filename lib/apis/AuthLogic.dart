@@ -164,7 +164,7 @@ Future<void> forgotPasswordRequest(BuildContext context, String email) async {
       var responseBody = json.decode(response.body);
       if (responseBody['success']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(responseBody['data']), backgroundColor: Colors.red,),
+          SnackBar(content: Text(responseBody['data']), backgroundColor: Colors.green,),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
