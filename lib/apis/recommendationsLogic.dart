@@ -40,7 +40,7 @@ Future<List<RecommendationModel>> fetchRecommendations(
 
     final response = await http.get(url, headers: headers);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       var data = json.decode(response.body);
       if (data['success'] == true && data.containsKey('songs')) {
         List<dynamic> songsJson = data['songs'];

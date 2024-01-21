@@ -268,57 +268,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 50),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        'Or continue with',
-                        style: TextStyle(
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 50),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Logic for Google login
-                    },
-                    child: const SquareTile(
-                      imagePath: 'assets/google_icon.png',
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // Logic for Apple login
-                    },
-                    child: const SquareTile(
-                      imagePath: 'assets/apple_icon.png',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

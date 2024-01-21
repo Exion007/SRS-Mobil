@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/songModel.dart';
-import '../models/albumModel.dart';
-import '../models/artistModel.dart';
-import '../apis/MySongs_Logic.dart';
+import '../models/songModel.dart'; // Update this import according to your model structure
+import '../models/albumModel.dart'; // You need to create this
+import '../models/artistModel.dart'; // You need to create this
+import '../apis/MySongs_Logic.dart'; // Update this import according to your service structure
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../apis/RatingLogic.dart';
 import '../apis/AuthLogic.dart';
@@ -58,7 +58,7 @@ class _SeeAllPageState extends State<SeeAllPage> {
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
-              return ListView.builder(
+              return ListView.separated(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   var item = snapshot.data![index];
@@ -110,6 +110,14 @@ class _SeeAllPageState extends State<SeeAllPage> {
                     onTap: () {
                       // Handle item tap
                     },
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return Divider(
+                    height:
+                        10, // You can adjust the height for spacing purposes
+                    color: Colors
+                        .black, // Change the color as needed for your theme
                   );
                 },
               );

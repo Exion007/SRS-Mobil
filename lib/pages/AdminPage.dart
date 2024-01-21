@@ -7,6 +7,7 @@ import '../models/friendModel.dart';
 import '../models/invitationModel.dart';
 import '../models/recommendationModel.dart';
 import '../apis/MyFriends_Logic.dart';
+import '../apis/recommendationsLogic.dart';
 import '../pages/admin_music_page.dart';
 import '../pages/admin_users_page.dart';
 import '../pages/admin_charts_page.dart';
@@ -22,8 +23,8 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
   int _selectedIndex = 1;
-  final List<String> allowedFriendRecommendations = [];
-  final List<RecommendationModel> _recommendations = [];
+  List<String> allowedFriendRecommendations = [];
+  List<RecommendationModel> _recommendations = [];
 
   final List<Widget> _pageOptions = [
     const ChartsPage(),   // Index 0 - Admin Charts Page
@@ -39,7 +40,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   void _showVisibilitySettings(BuildContext context) async {
-    List<String> allowedFriendRecommendations = await MyFriendsLogic().fetchAllowedFriendRecommendations();
+    List<String> allowedFriendRecommendations = await MyFriendsLogic().fetchAllowedFriends();
 
     showDialog(
       context: context,
@@ -103,7 +104,7 @@ class _AdminPageState extends State<AdminPage> {
 
     if (_recommendations.isEmpty) {
       try {
-        //_recommendations = await fetchRecommendations(RecommendationType.song) ?? [];  // Uncomment to activate recommendations
+        _recommendations = await fetchRecommendations(RecommendationType.friends) ?? [];  // Uncomment to activate recommendations
       } catch (e) {
         print('Error fetching recommendations: $e');
       }

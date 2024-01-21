@@ -188,6 +188,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // BASED ON SONGS
                 _buildSectionTitle('Based on Songs'),
                 _buildRecommendationsList(
                     fetchRecommendations(RecommendationType.song)),

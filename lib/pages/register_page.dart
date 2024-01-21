@@ -168,49 +168,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 35),
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 8.0),
-                      height: 1,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text('Or continue with',
-                      style: TextStyle(color: Colors.grey[300])),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.only(left: 8.0),
-                      height: 1,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 35),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      // Logic for Google login
-                    },
-                    child: const SquareTile(
-                      imagePath: 'assets/google_icon.png',
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // Logic for Apple login
-                    },
-                    child: const SquareTile(
-                      imagePath: 'assets/apple_icon.png',
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

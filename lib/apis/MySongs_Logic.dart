@@ -11,7 +11,8 @@ import '../models/albumModel.dart'; // Import the Album model
 class SongService {
   Future<List<Song>> fetchSongs() async {
     String? tokenStorage = await storage.read(key: 'token');
-
+    print(tokenStorage);
+    
     final headers = {
       'Authorization': 'Bearer $tokenStorage',
       'Content-Type': 'application/json',

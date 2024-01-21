@@ -266,7 +266,7 @@ class MyFriendsLogic {
     }
   }
 
-  Future<List<String>> fetchAllowedFriendRecommendations() async {
+  Future<List<String>> fetchAllowedFriends() async {
     String? userId = await fetchUserId();
     List<String> allowedRecommendations = [];
 

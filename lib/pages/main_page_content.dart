@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/songModel.dart';
-import '../models/albumModel.dart';
-import '../models/artistModel.dart';
-import '../apis/MySongs_Logic.dart';
+import '../models/songModel.dart'; // Update this import according to your model structure
+import '../models/albumModel.dart'; // You need to create this
+import '../models/artistModel.dart'; // You need to create this
+import '../apis/MySongs_Logic.dart'; // Update this import according to your service structure
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../apis/RatingLogic.dart';
 import '../apis/AuthLogic.dart';
-import '../pages/seeAllPage.dart';
+import './seeAllPage.dart';
 
 // Enum for different data types
 enum DataType { songs, albums, artists }
@@ -27,6 +27,51 @@ class _MainPageContentState extends State<MainPageContent> {
   late Future<List<dynamic>> albumsFuture;
   late Future<List<dynamic>> artistsFuture;
 
+  // Full dataset
+  List<Song> _allSongs = [];
+  List<Album> _allAlbums = [];
+  List<Artist> _allArtists = [];
+
+  // Filtered dataset
+  List<Song> _filteredSongs = [];
+  List<Album> _filteredAlbums = [];
+  List<Artist> _filteredArtists = [];
+
+  final TextEditingController _searchController = TextEditingController();
+
+  void _filterContent(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        // Reassigning the filtered lists to the full datasets
+        _filteredSongs = List.from(_allSongs);
+        _filteredAlbums = List.from(_allAlbums);
+        _filteredArtists = List.from(_allArtists);
+      } else {
+        // Filtering each list based on the query
+        _filteredSongs = _allSongs
+            .where((song) =>
+                song.songName.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+        _filteredAlbums = _allAlbums
+            .where((album) =>
+                album.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+        _filteredArtists = _allArtists
+            .where((artist) =>
+                artist.artistName.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+      // Note that you don't need an empty setState call because you're already
+      // inside a setState call.
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -34,11 +79,25 @@ class _MainPageContentState extends State<MainPageContent> {
   }
 
   void _loadData() {
-    // Initialize your data fetching here
     final songService = SongService();
-    songsFuture = songService.fetchSongs();
-    albumsFuture = songService.fetchAlbums();
-    artistsFuture = songService.fetchArtists();
+    songService.fetchSongs().then((songsList) {
+      setState(() {
+        _allSongs = songsList;
+        _filteredSongs = List.from(_allSongs);
+      });
+    });
+    songService.fetchAlbums().then((albumsList) {
+      setState(() {
+        _allAlbums = albumsList;
+        _filteredAlbums = List.from(_allAlbums);
+      });
+    });
+    songService.fetchArtists().then((artistsList) {
+      setState(() {
+        _allArtists = artistsList;
+        _filteredArtists = List.from(_allArtists);
+      });
+    });
   }
 
   Future<void> _refreshData() async {
@@ -67,9 +126,10 @@ class _MainPageContentState extends State<MainPageContent> {
                   color: Colors.grey[800],
                   borderRadius: BorderRadius.circular(30.0),
                 ),
-                child: const TextField(
-                  style:
-                      TextStyle(color: Colors.white), // Text color when typing
+                child: TextField(
+                  controller: _searchController, // Removed 'const' from here
+                  style: TextStyle(color: Colors.white),
+                  onChanged: _filterContent, // Removed 'const' from here
                   decoration: InputDecoration(
                     hintText: 'Search...',
                     hintStyle: TextStyle(color: Colors.white),
@@ -78,16 +138,18 @@ class _MainPageContentState extends State<MainPageContent> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 20.0),
 
               const _SectionHeader(title: 'Songs', route: '/songs'),
-              _MusicList(dataType: DataType.songs, dataFuture: songsFuture),
+              _MusicList(dataType: DataType.songs, dataList: _filteredSongs),
 
               const _SectionHeader(title: 'Albums', route: '/albums'),
-              _MusicList(dataType: DataType.albums, dataFuture: albumsFuture),
+              _MusicList(dataType: DataType.albums, dataList: _filteredAlbums),
 
               const _SectionHeader(title: 'Artists', route: '/artists'),
-              _MusicList(dataType: DataType.artists, dataFuture: artistsFuture),
+              _MusicList(
+                  dataType: DataType.artists, dataList: _filteredArtists),
             ],
           ),
         ),
@@ -95,6 +157,10 @@ class _MainPageContentState extends State<MainPageContent> {
     );
   }
 }
+
+/*
+  
+ */
 
 class _SectionHeader extends StatelessWidget {
   final String title;
@@ -138,33 +204,22 @@ class _SectionHeader extends StatelessWidget {
 
 class _MusicList extends StatelessWidget {
   final DataType dataType;
-  final Future<List<dynamic>> dataFuture;
+  final List<dynamic> dataList; // Changed to accept a list
 
-  const _MusicList({required this.dataType, required this.dataFuture});
+  const _MusicList({required this.dataType, required this.dataList});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<dynamic>>(
-      future: dataFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return SizedBox(
-            height: 150.0,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: snapshot.data?.length ?? 0,
-              itemBuilder: (context, index) {
-                var item = snapshot.data![index];
-                return _MusicCard(item: item);
-              },
-            ),
-          );
-        }
-      },
+    return SizedBox(
+      height: 150.0,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: dataList.length,
+        itemBuilder: (context, index) {
+          var item = dataList[index];
+          return _MusicCard(item: item);
+        },
+      ),
     );
   }
 }
