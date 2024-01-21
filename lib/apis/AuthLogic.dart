@@ -35,24 +35,24 @@ Future<void> loginRequest(
         await fetchAndStoreUserData(context);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful!')),
+          const SnackBar(content: Text('Login Successful!'), backgroundColor: Colors.green,),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed: No token received.')),
+          const SnackBar(content: Text('Login failed: No token received.'), backgroundColor: Colors.red,),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Error logging in. Please check your credentials.')),
+            content: Text('Error logging in. Please check your credentials.'), backgroundColor: Colors.red,),
       );
     }
   } catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
           content:
-              Text('Error connecting to the server. Please try again later.')),
+              Text('Error connecting to the server. Please try again later.'), backgroundColor: Colors.red,),
     );
   }
 }
@@ -94,7 +94,7 @@ Future<void> registerRequest(
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => const MainPage()));
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful!')),
+          const SnackBar(content: Text('Login Successful!'), backgroundColor: Colors.green,),
         );
       }
     } else {
@@ -104,7 +104,7 @@ Future<void> registerRequest(
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
-                'Error registering. Please check your details and try again.')),
+                'Error registering. Please check your details and try again.'), backgroundColor: Colors.red,),
       );
     }
   } catch (error) {
@@ -112,7 +112,7 @@ Future<void> registerRequest(
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
           content:
-              Text('Error connecting to the server. Please try again later.')),
+              Text('Error connecting to the server. Please try again later.'), backgroundColor: Colors.red,),
     );
   }
 }
@@ -164,18 +164,18 @@ Future<void> forgotPasswordRequest(BuildContext context, String email) async {
       var responseBody = json.decode(response.body);
       if (responseBody['success']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(responseBody['data'])),
+          SnackBar(content: Text(responseBody['data']), backgroundColor: Colors.red,),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Failed to send email: ${responseBody['data']}')),
+              content: Text('Failed to send email: ${responseBody['data']}'), backgroundColor: Colors.red,),
         );
       }
     } else {
       print('Request failed with status: ${response.statusCode}');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to reset password.')),
+        SnackBar(content: Text('Failed to reset password.'), backgroundColor: Colors.red,),
       );
     }
   } catch (error) {
@@ -183,7 +183,7 @@ Future<void> forgotPasswordRequest(BuildContext context, String email) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
           content:
-              Text('Error connecting to the server. Please try again later.')),
+              Text('Error connecting to the server. Please try again later.'), backgroundColor: Colors.red,),
     );
   }
 }

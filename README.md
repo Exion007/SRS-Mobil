@@ -24,17 +24,15 @@
 -   Connecting notifications to backend.
 -   Making the account visible or not visible by other users.
 -   Admin interface for managing (add-delete-update) users and songs.
+-   Log out functionality.
 
 ## In Progress:
 
--   Connecting notifications to backend
+-   Forgot password extension.
 
 ## Will Do:
 
--   Forgot password extension.
--   Sign in with Google or Apple account.
--   Register with Google or Apple account.
--   User details UI
+-   
 
 ## Guide:
 
