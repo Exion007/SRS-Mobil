@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:srs_mobile/apis/MySongs_Logic.dart';
 import '../pages/recommendations.dart';
@@ -23,15 +22,9 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  List<RecommendationModel> _recommendations = [];
   int _selectedIndex = 2;
-
-  Widget _placeholderWidget() {
-    return const Center(
-      child: Text('Page under construction',
-          style: TextStyle(color: Colors.white, fontSize: 30.0)),
-    );
-  }
+  final List<RecommendationModel> _recommendations = [];
+  final List<String> allowedFriendRecommendations = [];
 
   // List of widgets to call when a tab is selected
   final List<Widget> _widgetOptions = [];
@@ -74,8 +67,8 @@ class _MainPageState extends State<MainPage> {
                   return CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Text('No friends found.');
+                } else if (!snapshot.hasData || snapshot.data == null || snapshot.data!.isEmpty) {
+                  return _noDataMessage('No friends yet.');
                 } else {
                   List<Friend> friends = snapshot.data!;
                   return ListBody(
