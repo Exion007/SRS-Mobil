@@ -242,17 +242,23 @@ class _MainPageState extends State<MainPage> {
             context: context,
             builder: (BuildContext dialogContext) {
               return AlertDialog(
-                title: Text('Confirm'),
+                title: const Text('Confirm', style: TextStyle(color: Colors.blue, fontSize: 25.0),),
+                titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25),
                 content: Text('Do you want to add this song?'),
+                contentTextStyle: const TextStyle(fontSize: 20, color: Colors.white),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                  side: BorderSide(color: Colors.white, width: 2.5),
+                ),
                 actions: <Widget>[
                   TextButton(
-                    child: Text('Cancel'),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.blue, fontSize: 20.0),),
                     onPressed: () {
                       Navigator.of(dialogContext).pop(false);
                     },
                   ),
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('Add', style: TextStyle(color: Colors.green, fontSize: 20.0),),
                     onPressed: () {
                       Navigator.of(dialogContext).pop(true);
                     },
