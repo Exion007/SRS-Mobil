@@ -39,7 +39,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     _widgetOptions.addAll([
-      const RecommendationsPage(), // Index 0 - Recommendations page
+      _placeholderWidget(),  //const RecommendationsPage(), // Index 0 - Recommendations page
       const AddRemovePage(),       // Index 1 - Add-Remove page
       const MainPageContent(),     // Index 2 - Home page content
       const FriendsPage(),         // Index 3 - Friends page
@@ -118,7 +118,7 @@ class _MainPageState extends State<MainPage> {
 
     if (_recommendations.isEmpty) {
       try {
-        _recommendations = await fetchRecommendations(RecommendationType.temporal) ?? [];  // Uncomment to activate recommendations
+        _recommendations = await fetchRecommendations(RecommendationType.song) ?? [];  // Uncomment to activate recommendations
       } catch (e) {
         print('Error fetching recommendations: $e');
       }
