@@ -105,7 +105,7 @@ class _AdminPageState extends State<AdminPage> {
 
     if (_recommendations.isEmpty) {
       try {
-        _recommendations = await fetchRecommendations(RecommendationType.friends) ?? [];  // Uncomment to activate recommendations
+        _recommendations = await fetchRecommendations(RecommendationType.spotify) ?? [];  // Uncomment to activate recommendations
       } catch (e) {
         print('Error fetching recommendations: $e');
       }
