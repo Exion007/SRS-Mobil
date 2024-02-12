@@ -42,3 +42,10 @@ For starting the code type the following lines to terminal
 -   flutter pub get
 -   flutter doctor (if you see an error)
 -   flutter run
+
+To start backend type the following lines to terminal
+
+-   cd Backend (If you are not in the "Backend" directory)
+-   npm i
+-   npm start
+-   Ctrl+C to terminate
