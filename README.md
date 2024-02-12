@@ -45,6 +45,7 @@ For starting the code type the following lines to terminal
 
 To start backend type the following lines to terminal
 
+-   git clone https://github.com/CS308-Proje/Backend.git
 -   cd Backend (If you are not in the "Backend" directory)
 -   npm i
 -   npm start
